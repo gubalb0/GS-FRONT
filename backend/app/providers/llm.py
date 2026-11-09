@@ -2,6 +2,7 @@
 import json
 import logging
 import re
+import time
 from typing import Protocol
 
 import httpx
@@ -17,6 +18,10 @@ class LLMError(Exception):
 
 class LLMTimeout(LLMError):
     """IA demorou além do limite."""
+
+
+class LLMRateLimit(LLMError):
+    """Limite de requisições do provedor atingido (HTTP 429)."""
 
 
 class LLMInvalidResponse(LLMError):
@@ -47,19 +52,29 @@ class OpenAICompatibleLLM:
             "temperature": 0.2,
             "response_format": {"type": "json_object"},
         }
-        try:
-            resp = httpx.post(
-                f"{self.base_url}/chat/completions",
-                headers={"Authorization": f"Bearer {self.api_key}"},
-                json=payload,
-                timeout=self.timeout,
-            )
-        except httpx.TimeoutException as exc:
-            logger.warning("Timeout ao chamar o LLM")
-            raise LLMTimeout("timeout") from exc
-        except httpx.HTTPError as exc:
-            logger.warning("Falha de rede ao chamar o LLM: %s", type(exc).__name__)
-            raise LLMError("rede") from exc
+        for tentativa in range(2):
+            try:
+                resp = httpx.post(
+                    f"{self.base_url}/chat/completions",
+                    headers={"Authorization": f"Bearer {self.api_key}"},
+                    json=payload,
+                    timeout=self.timeout,
+                )
+            except httpx.TimeoutException as exc:
+                logger.warning("Timeout ao chamar o LLM")
+                raise LLMTimeout("timeout") from exc
+            except httpx.HTTPError as exc:
+                logger.warning("Falha de rede ao chamar o LLM: %s", type(exc).__name__)
+                raise LLMError("rede") from exc
+            if resp.status_code != 429:
+                break
+            # Limite do plano gratuito: espera o tempo sugerido pelo provedor (máx. 10 s) e tenta uma vez.
+            espera = _segundos_retry_after(resp.headers.get("retry-after"))
+            logger.warning("LLM respondeu HTTP 429; nova tentativa em %.1f s", espera)
+            if tentativa == 0:
+                time.sleep(espera)
+        if resp.status_code == 429:
+            raise LLMRateLimit("http_429")
 
         if resp.status_code != 200:
             # Loga só o status: o corpo pode conter detalhes da conta.
@@ -69,6 +84,13 @@ class OpenAICompatibleLLM:
             return resp.json()["choices"][0]["message"]["content"]
         except (KeyError, IndexError, TypeError, ValueError) as exc:
             raise LLMInvalidResponse("formato inesperado") from exc
+
+
+def _segundos_retry_after(valor: str | None) -> float:
+    try:
+        return min(max(float(valor), 1.0), 10.0)
+    except (TypeError, ValueError):
+        return 5.0
 
 
 # ---------------- Modo demonstração (sem chave) ----------------
