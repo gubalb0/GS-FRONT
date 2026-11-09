@@ -11,6 +11,9 @@ from ui.components import (
 )
 from ui.rotulos import CATEGORIAS, ORDEM_URGENCIA, URGENCIAS, rotulo_categoria, rotulo_urgencia
 
+# Valor-sentinela: o Streamlit trata None como "nada selecionado" e mostraria "Choose an option".
+NAO_SEI = "nao_sei"
+
 
 def render() -> None:
     etapa = st.session_state.etapa
@@ -30,7 +33,7 @@ def _formulario() -> None:
     st.caption("Escreva do seu jeito, como se estivesse contando para um vizinho. Campos com * são obrigatórios.")
 
     # Widgets com key=: o valor sobrevive aos reruns; ao voltar da revisão, recarregamos o rascunho.
-    for campo, padrao in (("descricao", ""), ("bairro", ""), ("cep", ""), ("categoria", None), ("consentimento", False)):
+    for campo, padrao in (("descricao", ""), ("bairro", ""), ("cep", ""), ("categoria", NAO_SEI), ("consentimento", False)):
         if f"f_{campo}" not in st.session_state:
             st.session_state[f"f_{campo}"] = r.get(campo, padrao)
 
@@ -45,8 +48,8 @@ def _formulario() -> None:
         cep = c2.text_input("CEP (opcional)", key="f_cep", max_chars=9, placeholder="00000-000",
                             help="Com o CEP conseguimos completar o endereço e checar a previsão de chuva.")
         categoria = st.selectbox(
-            "Que tipo de problema parece ser? (opcional)", [None] + list(CATEGORIAS), key="f_categoria",
-            format_func=lambda c: "Não sei / deixar a IA decidir" if c is None else rotulo_categoria(c),
+            "Que tipo de problema parece ser? (opcional)", [NAO_SEI] + list(CATEGORIAS), key="f_categoria",
+            format_func=lambda c: "Não sei / deixar a IA decidir" if c == NAO_SEI else rotulo_categoria(c),
         )
         consentimento = st.checkbox(
             "Entendi que meu relato será analisado por uma IA e revisado por pessoas da prefeitura. "
@@ -70,7 +73,8 @@ def _formulario() -> None:
         st.write("📍 Consultando endereço e previsão de chuva…")
         st.write("🤖 A IA está entendendo o problema (leva alguns segundos)…")
         try:
-            resultado = api.analisar(descricao.strip(), bairro.strip(), cep.strip() or None, categoria)
+            resultado = api.analisar(descricao.strip(), bairro.strip(), cep.strip() or None,
+                                    None if categoria == NAO_SEI else categoria)
         except ApiError as erro:
             status.update(label="Não foi possível analisar agora", state="error", expanded=False)
             caixa_erro(erro)
