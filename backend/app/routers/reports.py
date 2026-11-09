@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from app.dependencies import get_llm, get_open_data, get_repo
 from app.pipelines.privacy import mask_pii
 from app.pipelines.triage import run_triage
-from app.providers.llm import LLMError, LLMInvalidResponse, LLMProvider, LLMTimeout
+from app.providers.llm import LLMError, LLMInvalidResponse, LLMProvider, LLMRateLimit, LLMTimeout
 from app.providers.open_data import OpenDataProvider
 from app.providers.repository import Repository
 from app.schemas.report import (
@@ -26,6 +26,8 @@ def analisar(entrada: ReportInput, llm: LLMProvider = Depends(get_llm),
         resultado = run_triage(entrada, llm, dados)
     except LLMTimeout:
         raise HTTPException(504, detail=erro("ia_timeout", "A análise demorou mais que o esperado. Tente de novo em instantes."))
+    except LLMRateLimit:
+        raise HTTPException(429, detail=erro("ia_ocupada", "Muita gente usando a assistente agora. Aguarde alguns segundos e tente de novo."))
     except LLMInvalidResponse:
         logger.warning("LLM devolveu saída inválida após novas tentativas")
         raise HTTPException(502, detail=erro("ia_resposta_invalida", "Não conseguimos entender a resposta da IA desta vez. Tente novamente."))

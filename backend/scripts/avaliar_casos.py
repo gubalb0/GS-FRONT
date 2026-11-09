@@ -3,6 +3,7 @@
 Uso (dentro de backend/):  python -m scripts.avaliar_casos
 Saída: docs/casos_teste_ia.md (a coluna "Ajuste realizado" vocês preenchem).
 """
+import time
 from pathlib import Path
 
 from app.config import get_settings
@@ -10,6 +11,8 @@ from app.pipelines.triage import run_triage
 from app.providers.llm import LLMError, build_llm
 from app.providers.open_data import OpenDataProvider
 from app.schemas.report import ReportInput
+
+PAUSA_SEGUNDOS = 8
 
 CASOS = [
     ("Tem um buraco enorme na Av. dos Autonomistas, perto do ponto de ônibus. Duas motos já caíram essa semana.",
@@ -33,6 +36,8 @@ def main():
     linhas = ["| # | Entrada (resumo) | Esperado | Obtido | Confiança | OK? | Ajuste realizado |",
               "|---|---|---|---|---|---|---|"]
     for i, (texto, bairro, cat_esp, urg_esp) in enumerate(CASOS, 1):
+        if i > 1 and llm.modo == "ia":
+            time.sleep(PAUSA_SEGUNDOS)  # respeita o limite por minuto do plano gratuito
         texto_valido = texto if len(texto) >= 20 else texto + " (relato curto de propósito)"
         try:
             r = run_triage(ReportInput(descricao=texto_valido, bairro=bairro), llm, dados).analise

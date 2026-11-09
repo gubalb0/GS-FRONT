@@ -64,7 +64,7 @@ def caixa_erro(erro) -> None:
     st.error(f"**Não deu certo desta vez.** {erro.mensagem}", icon="⚠️")
     for campo in erro.campos:
         st.markdown(f"- {campo}")
-    if erro.codigo in ("offline", "timeout", "ia_indisponivel", "ia_timeout"):
+    if erro.codigo in ("offline", "timeout", "ia_indisponivel", "ia_timeout", "ia_ocupada"):
         st.caption("Seu texto continua salvo no formulário — é só tentar de novo.")
 
 

@@ -1,6 +1,6 @@
 from app.dependencies import get_llm, get_open_data
 from app.main import app
-from app.providers.llm import LLMError, LLMTimeout
+from app.providers.llm import LLMError, LLMRateLimit, LLMTimeout
 from tests.conftest import FakeLLM, FakeOpenData
 
 RELATO = {"descricao": "Poste apagado há uma semana na rua da escola, fica tudo escuro", "bairro": "Centro"}
@@ -96,3 +96,10 @@ def test_cors_restritivo(client):
     bloqueado = client.options("/health", headers={"Origin": "https://site-malicioso.com", "Access-Control-Request-Method": "GET"})
     assert ok.headers.get("access-control-allow-origin") == "http://localhost:8501"
     assert "access-control-allow-origin" not in bloqueado.headers
+
+
+def test_limite_de_requisicoes(client):
+    _sem_rede()
+    app.dependency_overrides[get_llm] = lambda: FakeLLM(erro=LLMRateLimit("x"))
+    r = client.post("/reports/analyze", json=RELATO)
+    assert r.status_code == 429 and r.json()["detail"]["codigo"] == "ia_ocupada"
