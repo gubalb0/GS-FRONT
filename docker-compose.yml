@@ -1,0 +1,32 @@
+services:
+  api:
+    build: ./backend
+    environment:
+      LLM_PROVIDER: ${LLM_PROVIDER:-mock}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_BASE_URL: ${LLM_BASE_URL:-https://api.groq.com/openai/v1}
+      LLM_MODEL: ${LLM_MODEL:-llama-3.3-70b-versatile}
+      MANAGER_PASSWORD: ${MANAGER_PASSWORD:?Defina MANAGER_PASSWORD no arquivo .env}
+      TOKEN_SECRET: ${TOKEN_SECRET:?Defina TOKEN_SECRET no arquivo .env}
+      ALLOWED_ORIGINS: http://localhost:8501
+      DATABASE_PATH: /app/data/zelo.db
+      SEED_DEMO_DATA: ${SEED_DEMO_DATA:-true}
+    ports:
+      - "8000:8000"
+    volumes:
+      - zelo-data:/app/data
+    restart: unless-stopped
+
+  web:
+    build: ./frontend
+    environment:
+      API_URL: http://api:8000
+    ports:
+      - "8501:8501"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  zelo-data:
