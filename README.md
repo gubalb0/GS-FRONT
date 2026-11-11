@@ -8,8 +8,8 @@
 | | |
 |---|---|
 | 👥 Integrantes | ✏️ _Nome – RM_ · _Nome – RM_ · _Nome – RM_ |
-| 🌐 Deploy (front) | ✏️ _https://..._ |
-| 🔌 Deploy (API) | ✏️ _https://.../docs_ |
+| 🌐 Deploy (front) | https://zelo-web.onrender.com |
+| 🔌 Deploy (API) | https://zelo-api-fzc6.onrender.com/docs |
 | 🎬 Vídeo | ✏️ _https://youtu.be/..._ |
 
 ---
@@ -109,7 +109,8 @@ zelo/
 - **Modelo `openai/gpt-oss-120b` (Groq):** começamos com o `llama-3.3-70b-versatile`, mas na primeira execução dos casos de teste todas as chamadas voltaram com **HTTP 404**: a Groq havia desativado esse modelo em 16/08/2026 ([Groq – Deprecations](https://console.groq.com/docs/deprecations.md)). Migramos para o substituto recomendado pela própria Groq. Como o modelo fica só no `.env` (`LLM_MODEL`), a troca não exigiu mudar código.
 - **Limite do plano gratuito (HTTP 429):** a Groq limita requisições por minuto. Ao receber 429, a API espera o tempo indicado no cabeçalho `Retry-After` (no máximo 10 s) e tenta mais uma vez; se o limite persistir, o cidadão vê uma mensagem específica ("Muita gente usando a assistente agora…") em vez de um erro genérico.
 - **Dados abertos:** ViaCEP (endereço) e Open-Meteo (chuva), ambos sem chave e com cache de 30 min. Se falharem, a análise segue só com o relato.
-- **Deploy:** Docker Compose (opção B) para rodar tudo com um comando, mais `render.yaml` para publicar API e front no Render (opção A). ✏️ _Indiquem qual usaram._
+- **Deploy (opção A — Render):** publicamos API e front como dois serviços no Render a partir do `render.yaml` (Blueprint). Escolhemos o deploy público porque o link permite que o professor e as pessoas da validação testem pelo navegador ou celular, sem instalar nada. A URL da API é configurada no front pela variável `API_URL`. O `docker-compose.yml` (opção B) continua disponível para rodar tudo localmente com um comando.
+- **Limitações do plano gratuito do Render:** o serviço "dorme" após cerca de 15 minutos sem uso (o primeiro acesso seguinte leva perto de 1 minuto) e o SQLite é recriado a cada reinício; os dados de demonstração são gerados de novo automaticamente. Para uma POC isso é aceitável; em produção usaríamos um banco gerenciado.
 
 ## 6. Ética e limites da IA
 
@@ -187,6 +188,7 @@ streamlit run app.py
 1. Suba o repositório no GitHub.
 2. No Render: **New → Blueprint** → selecione o repositório (usa o `render.yaml`).
 3. Preencha `LLM_API_KEY`, `MANAGER_PASSWORD`, `API_URL` (URL do zelo-api) e `ALLOWED_ORIGINS` (URL do zelo-web).
+4. Se o Render acrescentar um sufixo ao nome do serviço (ex.: `zelo-api-fzc6`), copie a URL real e corrija `API_URL`/`ALLOWED_ORIGINS` em **Environment** — foi o que aconteceu no nosso deploy.
 
 > Alternativa: front no **Streamlit Community Cloud** (main file `frontend/app.py`, secret `API_URL`) e API no Render.
 
