@@ -140,13 +140,13 @@ zelo/
 ## 8. Evidências de validação
 
 ### 8.1 Teste com pessoas do público-alvo
-Três pessoas testaram a versão publicada pelo WhatsApp (link do deploy + 3 tarefas + 4 perguntas), em 11 e 12/11/2026. Registro completo, prints e antes × depois em [`docs/VALIDACAO.md`](docs/VALIDACAO.md).
+Três moradores da Grande SP (19–20 anos; Osasco, Taboão da Serra e região oeste; que se deslocam de carro, a pé e de ônibus) testaram a versão publicada pelo WhatsApp (link do deploy + 3 tarefas + 4 perguntas), em 11 e 12/11/2026. **Os três concluíram todas as tarefas sem ajuda**, dois deles pelo celular. Registro completo, prints e antes × depois em [`docs/VALIDACAO.md`](docs/VALIDACAO.md).
 
 | | Facilidade | Confiaria? | Principal feedback |
 |---|---|---|---|
 | Pessoa 1 (computador) | 4/5 | Sim | Indicar **onde registrar** o pedido na prefeitura |
 | Pessoa 2 (celular) | 4/5 | Sim | Campo para dizer o motivo em **"Outro problema"**; visual com **menos "cara de IA"** |
-| Pessoa 3 | 4/5 | Sim, em casos claros | **Explicar o protocolo**; "Urgência Crítica" assusta; **destacar emergência**; espera de 30 s parece travamento |
+| Pessoa 3 (celular) | 4/5 | Sim, em casos claros | **Explicar o protocolo**; "Urgência Crítica" assusta; **destacar emergência**; espera de 30 s parece travamento |
 
 **Observado por nós nos prints:** o LLM **inventou um telefone** ("Secretaria de Obras (0800-xxxx)") apesar da proibição no prompt, e o horário aparecia em UTC.
 
