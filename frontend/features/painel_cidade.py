@@ -19,11 +19,11 @@ def indicadores(df) -> None:
     c1.metric("📨 Relatos", total)
     c2.metric("✅ Resolvidos", f"{resolvidos} ({resolvidos / total:.0%})" if total else "0")
     c3.metric("🟠🔴 Graves em aberto", graves_abertos)
-    c4.metric("🤖 IA aceita sem correção", f"{aceitos:.0f}%")
+    c4.metric("Classificação aceita sem correção", f"{aceitos:.0f}%")
 
 
 def render() -> None:
-    st.markdown("### 📊 Painel da cidade")
+    st.markdown("### Painel da cidade")
     st.caption("Dados anônimos de todos os relatos: sem textos, nomes ou endereços.")
     try:
         dados = api.relatos_publicos()

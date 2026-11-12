@@ -103,3 +103,40 @@ def test_limite_de_requisicoes(client):
     app.dependency_overrides[get_llm] = lambda: FakeLLM(erro=LLMRateLimit("x"))
     r = client.post("/reports/analyze", json=RELATO)
     assert r.status_code == 429 and r.json()["detail"]["codigo"] == "ia_ocupada"
+
+
+def test_outro_problema_guarda_detalhe_e_canal(client):
+    _sem_rede()
+    a = client.post("/reports/analyze", json=dict(RELATO, cidade="São Paulo")).json()
+    assert "SP156" in a["canal_oficial"]["nome"]
+    r = client.post("/reports", json={"analise_id": a["analise_id"], "categoria_final": "outro",
+                                      "urgencia_final": "baixa", "detalhe_outro": "  Pichação no muro da escola  "})
+    relato = r.json()
+    assert relato["detalhe_outro"] == "Pichação no muro da escola"
+    assert "SP156" in relato["canal_oficial"]["nome"]
+    publico = client.get("/reports/public").json()
+    assert all("detalhe_outro" not in p for p in publico)
+
+
+def test_detalhe_ignorado_se_categoria_nao_e_outro(client):
+    _sem_rede()
+    a = client.post("/reports/analyze", json=RELATO).json()
+    r = client.post("/reports", json={"analise_id": a["analise_id"], "categoria_final": "iluminacao_publica",
+                                      "urgencia_final": "media", "detalhe_outro": "não deveria salvar"})
+    assert r.json()["detalhe_outro"] is None
+
+
+def test_migracao_de_banco_antigo(tmp_path):
+    import sqlite3
+
+    from app.providers.repository import Repository
+    caminho = tmp_path / "antigo.db"
+    con = sqlite3.connect(caminho)
+    con.execute("CREATE TABLE relatos (id INTEGER PRIMARY KEY, protocolo TEXT, criado_em TEXT, atualizado_em TEXT,"
+                " descricao TEXT, bairro TEXT, cep TEXT, categoria TEXT, urgencia TEXT, categoria_ia TEXT,"
+                " urgencia_ia TEXT, orgao_responsavel TEXT, resumo TEXT, orientacoes TEXT, status TEXT,"
+                " nota_gestor TEXT, feedback_util INTEGER, feedback_comentario TEXT, demo INTEGER)")
+    con.commit(); con.close()
+    repo = Repository(str(caminho)); repo.init()
+    colunas = {r[1] for r in sqlite3.connect(caminho).execute("PRAGMA table_info(relatos)")}
+    assert {"cidade", "detalhe_outro"} <= colunas

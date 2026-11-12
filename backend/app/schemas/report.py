@@ -40,8 +40,16 @@ class Status(str, Enum):
 class ReportInput(BaseModel):
     descricao: str = Field(..., min_length=20, max_length=1500, description="Relato do problema em linguagem livre")
     bairro: str = Field(..., min_length=2, max_length=80)
+    cidade: str | None = Field(default=None, max_length=80, description="Cidade (opcional; o CEP também a identifica)")
     cep: str | None = Field(default=None, description="CEP com 8 dígitos (opcional)")
     categoria_sugerida: Categoria | None = None
+
+    @field_validator("cidade", mode="before")
+    @classmethod
+    def _cidade(cls, v):
+        if isinstance(v, str):
+            v = re.sub(r"\s+", " ", v).strip()
+        return v or None
 
     @field_validator("descricao", "bairro", mode="before")
     @classmethod
@@ -73,6 +81,15 @@ class TriageResult(BaseModel):
     justificativa: str = Field(min_length=5, max_length=600, description="Por que essa categoria e urgência")
 
 
+class CanalOficial(BaseModel):
+    """Onde o cidadão registra o pedido oficialmente. Definido por tabela verificada, nunca pela IA."""
+
+    cidade: str | None = None
+    nome: str
+    como_registrar: list[str]
+    fonte: str | None = None
+
+
 class ContextoExterno(BaseModel):
     endereco: str | None = None
     cidade: str | None = None
@@ -86,6 +103,7 @@ class AnalysisResponse(BaseModel):
     analise_id: str = ""
     analise: TriageResult
     contexto: ContextoExterno
+    canal_oficial: CanalOficial
     precisa_revisao: bool
     modo: str  # "ia" ou "demonstracao"
     dados_pessoais_removidos: bool
@@ -96,6 +114,15 @@ class ReportConfirm(BaseModel):
     analise_id: str = Field(min_length=8, max_length=64, pattern=r"^[a-f0-9]+$")
     categoria_final: Categoria
     urgencia_final: Urgencia
+    detalhe_outro: str | None = Field(default=None, max_length=120,
+                                      description="Qual é o problema, quando o cidadão escolhe 'outro'")
+
+    @field_validator("detalhe_outro", mode="before")
+    @classmethod
+    def _detalhe(cls, v):
+        if isinstance(v, str):
+            v = re.sub(r"\s+", " ", v).strip()
+        return v or None
 
 
 class ReportOut(BaseModel):
@@ -105,8 +132,10 @@ class ReportOut(BaseModel):
     atualizado_em: datetime
     descricao: str
     bairro: str
+    cidade: str | None = None
     cep: str | None = None
     categoria: Categoria
+    detalhe_outro: str | None = None
     urgencia: Urgencia
     categoria_ia: Categoria
     urgencia_ia: Urgencia
@@ -114,6 +143,7 @@ class ReportOut(BaseModel):
     orgao_responsavel: str
     resumo: str
     orientacoes: list[str]
+    canal_oficial: CanalOficial
     status: Status
     nota_gestor: str | None = None
     feedback_util: bool | None = None

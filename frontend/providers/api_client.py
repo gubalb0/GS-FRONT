@@ -38,11 +38,13 @@ def _api_url() -> str:
 @st.cache_resource(show_spinner=False)
 def _client(base_url: str) -> httpx.Client:
     """Uma conexão reaproveitada entre reruns (cache_resource)."""
-    return httpx.Client(base_url=base_url, timeout=httpx.Timeout(45.0, connect=5.0),
+    # 90 s de leitura: no plano gratuito do Render a API "acorda" em até ~1 min antes de responder.
+    return httpx.Client(base_url=base_url, timeout=httpx.Timeout(90.0, connect=10.0),
                         headers={"User-Agent": "zelo-frontend/1.0"})
 
 
 def _request(method: str, path: str, *, token: str | None = None, **kwargs) -> Any:
+    """kwargs aceita `timeout` para sobrescrever o padrão (ex.: acordar o servidor no plano gratuito)."""
     headers = {"Authorization": f"Bearer {token}"} if token else {}
     try:
         resp = _client(_api_url()).request(method, path, headers=headers, **kwargs)
@@ -81,24 +83,36 @@ def _exige_lista(data: Any) -> list[dict]:
 
 
 # ------------------------- Endpoints -------------------------
+def api_respondendo(espera_segundos: float) -> bool:
+    """Chama /health sem cache. Com espera longa, também serve para 'acordar' a API no Render."""
+    try:
+        _exige(_request("GET", "/health", timeout=httpx.Timeout(espera_segundos, connect=espera_segundos)),
+               {"status"})
+        return True
+    except ApiError:
+        return False
+
+
 @st.cache_data(ttl=20, show_spinner=False)
 def saude() -> dict:
     return _exige(_request("GET", "/health"), {"status", "modo"})
 
 
 @st.cache_data(ttl=600, show_spinner=False, max_entries=50)
-def analisar(descricao: str, bairro: str, cep: str | None, categoria: str | None) -> dict:
+def analisar(descricao: str, bairro: str, cidade: str | None, cep: str | None, categoria: str | None) -> dict:
     """Cacheado: reenviar exatamente o mesmo relato não gasta outra chamada ao LLM."""
     data = _request("POST", "/reports/analyze",
-                    json={"descricao": descricao, "bairro": bairro, "cep": cep, "categoria_sugerida": categoria})
+                    json={"descricao": descricao, "bairro": bairro, "cidade": cidade, "cep": cep,
+                          "categoria_sugerida": categoria})
     _exige(data, {"analise_id", "analise", "contexto", "precisa_revisao", "modo"})
     _exige(data["analise"], {"categoria", "urgencia", "orientacoes", "resumo", "orgao_responsavel", "confianca"})
     return data
 
 
-def confirmar(analise_id: str, categoria: str, urgencia: str) -> dict:
+def confirmar(analise_id: str, categoria: str, urgencia: str, detalhe_outro: str | None = None) -> dict:
     data = _exige(_request("POST", "/reports", json={"analise_id": analise_id, "categoria_final": categoria,
-                                                    "urgencia_final": urgencia}), {"protocolo", "status"})
+                                                    "urgencia_final": urgencia, "detalhe_outro": detalhe_outro}),
+                  {"protocolo", "status"})
     analisar.clear()  # a análise foi consumida; um novo envio precisa de nova análise
     relatos_publicos.clear()
     return data

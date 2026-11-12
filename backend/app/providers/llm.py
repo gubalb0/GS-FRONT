@@ -104,7 +104,7 @@ _REGRAS = [
     ("calcada_acessibilidade", ["calçada", "calcada", "rampa", "cadeirante", "acessib"]),
     ("sinalizacao_transito", ["semáforo", "semaforo", "farol", "placa", "faixa de pedestre", "sinaliza"]),
 ]
-_CRITICOS = ["fio caído", "fio caido", "fio solto", "choque", "ilhad", "desab", "caiu sobre", "caindo sobre", "risco de vida"]
+_CRITICOS = ["fio caído", "fio caido", "caiu um fio", "fio solto", "choque", "ilhad", "desab", "caiu sobre", "caindo sobre", "risco de vida"]
 _ALTOS = ["acidente", "moto", "escola", "hospital", "cratera", "perigo", "perigos", "criança", "crianca", "idoso", "noite toda"]
 
 ORGAOS = {

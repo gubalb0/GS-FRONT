@@ -20,8 +20,9 @@ URGENCIAS = {
               "dica": "Deve ser resolvido nos próximos dias."},
     "alta": {"icone": "🟠", "rotulo": "Alta", "fg": "#7C2D12", "bg": "#FFEDD5", "cor": "#EA580C",
              "dica": "Precisa de atenção rápida."},
-    "critica": {"icone": "🔴", "rotulo": "Crítica", "fg": "#7F1D1D", "bg": "#FEE2E2", "cor": "#DC2626",
-                "dica": "Risco imediato. Se houver perigo, ligue 199 ou 193."},
+    # "Crítica" assustava (pessoa 3 da validação): o rótulo diz o que é, a dica diz o que fazer.
+    "critica": {"icone": "🔴", "rotulo": "Máxima", "fg": "#7F1D1D", "bg": "#FEE2E2", "cor": "#DC2626",
+                "dica": "Pode haver risco para pessoas. Mantenha distância e, se alguém estiver em perigo, ligue 199 ou 193."},
 }
 ORDEM_URGENCIA = ["baixa", "media", "alta", "critica"]
 
