@@ -7,7 +7,7 @@
 
 | | |
 |---|---|
-| 👥 Integrantes | ✏️ _Nome – RM_ · _Nome – RM_ · _Nome – RM_ |
+| 👥 Integrantes | Vinicius Araujo – RM 564504 · Henry Gimenez – RM 563217 · Gustavo Balbo – RM 561711 |
 | 🌐 Deploy (front) | https://zelo-web.onrender.com |
 | 🔌 Deploy (API) | https://zelo-api-fzc6.onrender.com/docs |
 | 🎬 Vídeo | ✏️ _https://youtu.be/..._ |
@@ -28,7 +28,7 @@
 - O boletim do Cemaden sobre o mesmo evento registrou 33 pontos de alagamento e cerca de 140 mil imóveis sem energia ([Cemaden/gov.br](https://www.gov.br/cemaden/pt-br/assuntos/monitoramento/boletim-de-impactos/boletim-de-impactos-de-extremos-de-origem-hidro-geo-climatico-em-atividades-estrategicas-para-o-brasil-2013-11-02-2025-ano-08-no-75/75ReuniaoImpactosfevereiro2025.pdf)).
 - No episódio de chuvas do início de fevereiro de 2025, o CGE registrou 161 mm (65% do previsto para o mês inteiro); houve uma morte e 16 pessoas precisaram de atendimento após ficarem presas em enchentes ou deslizamentos ([BNews SP](https://www.bnewssaopaulo.com.br/amp/noticias/policia/sao-paulo-estado-atencao-alagamentos-como-se-proteger.html)).
 - Em 2019 a prefeitura precisou de um mutirão para zerar um estoque de cerca de 40 mil pedidos de tapa-buraco feitos pelo 156 ([O Taboanense](https://www.otaboanense.com.br/sao-paulo-bruno-covas-diz-que-vai-tapar-40-mil-buracos-em-40-dias)).
-- ✏️ _Relatos das entrevistas com o público-alvo (seção 8)._
+- Validação com três moradores (seção 8.1): todos confiariam na classificação, mas duas das três pessoas perguntaram, de formas diferentes, **o que fazer depois do relato** (onde registrar, o que é o protocolo), o que confirma a dor de não saber a quem recorrer.
 
 ## 2. ODS relacionados
 
