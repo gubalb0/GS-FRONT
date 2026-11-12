@@ -9,10 +9,20 @@ BASE = """
   .zelo-step-on {background:#0B6E4F;color:#fff !important;opacity:1;font-weight:700}
   .zelo-empty {text-align:center;padding:32px 16px;border:2px dashed #94A3B8;border-radius:14px;color:inherit}
   .zelo-empty-icon {font-size:2.4rem;margin-bottom:6px}
-  .zelo-hero {background:linear-gradient(120deg,#0B6E4F 0%,#14532D 100%);color:#fff;padding:22px 26px;
-              border-radius:16px;margin-bottom:14px}
-  .zelo-hero h1 {color:#fff;margin:0;font-size:2rem}
-  .zelo-hero p {color:#E7F5EF;margin:6px 0 0 0;font-size:1.05rem}
+  /* Cabeçalho sóbrio, de serviço público (pessoa 2 achou o visual com "cara de IA") */
+  .zelo-hero {border-top:6px solid #0B6E4F;border-bottom:1px solid #D7DEDB;padding:14px 2px 16px;margin-bottom:10px}
+  .zelo-hero h1 {margin:0;font-size:1.9rem;font-weight:700;letter-spacing:-.01em}
+  .zelo-hero .zelo-marca {color:#0B6E4F}
+  .zelo-hero p {margin:4px 0 0 0;font-size:1.05rem;opacity:.85}
+  /* Emergência: números grandes, a um toque no celular */
+  .zelo-emergencia {border:2px solid #B91C1C;border-left-width:8px;border-radius:10px;padding:14px 16px;margin:6px 0 14px;
+                    background:#FEF2F2;color:#450A0A}
+  .zelo-emergencia p {margin:0 0 10px 0;color:#450A0A}
+  .zelo-tels {display:flex;flex-wrap:wrap;gap:8px}
+  .zelo-tel {display:inline-flex;align-items:baseline;gap:6px;padding:8px 14px;border-radius:8px;background:#B91C1C;
+             color:#fff !important;text-decoration:none !important;font-size:1rem}
+  .zelo-tel strong {font-size:1.25rem}
+  .zelo-tel:hover {background:#7F1D1D}
   /* foco sempre visível para quem navega com teclado */
   *:focus-visible {outline:3px solid #1D4ED8 !important;outline-offset:2px !important}
 </style>
@@ -32,7 +42,12 @@ ALTO_CONTRASTE = """
   .stApp a {color:#FFD400 !important}
   .zelo-badge {background:#000 !important;color:#fff !important;border:2px solid #fff !important}
   .zelo-step-on {background:#FFD400 !important;color:#000 !important}
-  .zelo-hero {background:#000 !important;border:2px solid #FFD400}
+  .zelo-hero {background:#000 !important;border-top-color:#FFD400 !important}
+  .zelo-hero .zelo-marca {color:#FFD400 !important}
+  .zelo-emergencia {background:#000 !important;border-color:#FF6B6B !important}
+  .zelo-emergencia p, .zelo-emergencia strong {color:#fff !important}
+  .stApp a.zelo-tel {background:#FFD400 !important;color:#000 !important}
+  .stApp a.zelo-tel strong {color:#000 !important}
   [data-testid="stVerticalBlockBorderWrapper"] {border-color:#fff !important}
   /* caixas de aviso (sucesso, erro, info, alerta): fundo preto e borda colorida */
   .stApp [data-testid="stAlertContainer"] {background:#000 !important;border:2px solid #fff !important}

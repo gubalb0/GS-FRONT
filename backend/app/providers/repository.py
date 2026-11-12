@@ -21,8 +21,10 @@ CREATE TABLE IF NOT EXISTS relatos (
     atualizado_em TEXT NOT NULL,
     descricao TEXT NOT NULL,
     bairro TEXT NOT NULL,
+    cidade TEXT,
     cep TEXT,
     categoria TEXT NOT NULL,
+    detalhe_outro TEXT,
     urgencia TEXT NOT NULL,
     categoria_ia TEXT NOT NULL,
     urgencia_ia TEXT NOT NULL,
@@ -42,8 +44,15 @@ def _agora() -> datetime:
     return datetime.now(timezone.utc)
 
 
+# Colunas adicionadas depois da 1ª versão: bancos antigos recebem ALTER TABLE no init().
+COLUNAS_NOVAS = {"cidade": "TEXT", "detalhe_outro": "TEXT"}
+
+
 def _row(row: sqlite3.Row) -> dict:
+    from app.providers.canais import canal_para  # import local: canais depende de schemas
+
     d = dict(row)
+    d["canal_oficial"] = canal_para(d.get("cidade")).model_dump()
     d["orientacoes"] = json.loads(d["orientacoes"])
     d["demo"] = bool(d["demo"])
     d["feedback_util"] = None if d["feedback_util"] is None else bool(d["feedback_util"])
@@ -62,6 +71,10 @@ class Repository:
     def init(self) -> None:
         with self._lock, self._conn:
             self._conn.executescript(SCHEMA)
+            existentes = {r["name"] for r in self._conn.execute("PRAGMA table_info(relatos)")}
+            for coluna, tipo in COLUNAS_NOVAS.items():
+                if coluna not in existentes:
+                    self._conn.execute(f"ALTER TABLE relatos ADD COLUMN {coluna} {tipo}")
 
     # ----- análises pendentes (aguardando confirmação do cidadão) -----
     def save_analysis(self, analise_id: str, entrada: dict, resultado: dict) -> None:
@@ -86,16 +99,16 @@ class Repository:
     # ----- relatos -----
     def create_report(self, entrada: dict, analise: dict, categoria: str, urgencia: str, demo: bool = False,
                       criado_em: datetime | None = None, status: str = "recebido",
-                      feedback_util: bool | None = None) -> dict:
+                      feedback_util: bool | None = None, detalhe_outro: str | None = None) -> dict:
         quando = (criado_em or _agora()).isoformat()
         protocolo = f"ZL-{(criado_em or _agora()):%Y%m%d}-{secrets.token_hex(3).upper()}"
         with self._lock, self._conn:
             self._conn.execute(
-                """INSERT INTO relatos (protocolo, criado_em, atualizado_em, descricao, bairro, cep, categoria,
-                   urgencia, categoria_ia, urgencia_ia, orgao_responsavel, resumo, orientacoes, status,
-                   feedback_util, demo) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
-                (protocolo, quando, quando, entrada["descricao"], entrada["bairro"], entrada.get("cep"),
-                 categoria, urgencia, analise["categoria"], analise["urgencia"], analise["orgao_responsavel"],
+                """INSERT INTO relatos (protocolo, criado_em, atualizado_em, descricao, bairro, cidade, cep, categoria,
+                   detalhe_outro, urgencia, categoria_ia, urgencia_ia, orgao_responsavel, resumo, orientacoes,
+                   status, feedback_util, demo) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                (protocolo, quando, quando, entrada["descricao"], entrada["bairro"], entrada.get("cidade"),
+                 entrada.get("cep"), categoria, detalhe_outro if categoria == "outro" else None, urgencia, analise["categoria"], analise["urgencia"], analise["orgao_responsavel"],
                  analise["resumo"], json.dumps(analise["orientacoes"], ensure_ascii=False), status,
                  None if feedback_util is None else int(feedback_util), int(demo)),
             )
@@ -144,7 +157,7 @@ class Repository:
         from app.providers.llm import ORGAOS  # import local para evitar ciclo
 
         rnd = random.Random(42)
-        bairros = ["Centro", "Presidente Altino", "Rochdale", "Km 18", "Jardim Veloso", "Vila Yara", "Bela Vista", "Quitaúna"]
+        bairros = ["Centro", "Presidente Altino", "Rochdale", "Km 18", "Jardim Veloso", "Vila Yara", "Bela Vista", "Quitaúna"]  # Osasco
         categorias = list(ORGAOS)
         urgencias = ["baixa", "media", "alta", "critica"]
         for _ in range(n):
@@ -163,6 +176,6 @@ class Repository:
                        "resumo": f"Relato fictício de demonstração: {cat.replace('_', ' ')}.",
                        "orientacoes": ["Relato de demonstração."]}
             entrada = {"descricao": "Relato fictício gerado para demonstração do painel.",
-                       "bairro": rnd.choice(bairros), "cep": None}
+                       "bairro": rnd.choice(bairros), "cidade": "Osasco", "cep": None}
             self.create_report(entrada, analise, cat, urg, demo=True, criado_em=criado, status=status,
                                feedback_util=rnd.choice([True, True, True, False, None]))

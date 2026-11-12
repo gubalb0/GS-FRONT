@@ -17,7 +17,8 @@ logger = logging.getLogger("zelo")
 
 NOMES_CAMPOS = {"descricao": "Descrição", "bairro": "Bairro", "cep": "CEP", "senha": "Senha",
                 "categoria_final": "Tipo de problema", "urgencia_final": "Urgência", "comentario": "Comentário",
-                "nota": "Observação", "analise_id": "Análise"}
+                "nota": "Observação", "analise_id": "Análise", "cidade": "Cidade",
+                "detalhe_outro": "Qual é o problema"}
 
 
 def _mensagem(e: dict) -> str:

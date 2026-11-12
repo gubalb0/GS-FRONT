@@ -75,3 +75,48 @@ def test_confianca_baixa_pede_revisao():
     incerto = dict(VALIDO, confianca=0.3)
     r = run_triage(entrada("Tem uma coisa estranha na rua de casa"), FakeLLM([json.dumps(incerto)]), FakeOpenData())
     assert r.precisa_revisao
+
+
+# ---------- Ajustes da validação com usuários ----------
+from app.pipelines.triage import remover_telefones_inventados  # noqa: E402
+from app.providers.canais import canal_para  # noqa: E402
+
+
+def test_remove_telefone_inventado_pela_ia():
+    # Texto real devolvido pelo LLM durante o teste com a pessoa 1
+    texto = "Registre a ocorrência no aplicativo da prefeitura ou ligue para a Secretaria de Obras (0800-xxxx)."
+    limpo = remover_telefones_inventados(texto)
+    assert "0800" not in limpo and "xxxx" not in limpo and "()" not in limpo
+    assert limpo.endswith("Secretaria de Obras.")
+
+
+def test_mantem_numeros_de_emergencia_e_156():
+    texto = "Ligue 199 (Defesa Civil), 193 ou 156; não ligue (11) 98888-7777."
+    limpo = remover_telefones_inventados(texto)
+    assert "199" in limpo and "193" in limpo and "156" in limpo and "98888" not in limpo
+
+
+def test_canal_oficial_por_cidade():
+    assert "SP156" in canal_para("são paulo").nome
+    assert "Osasco" in canal_para(" OSASCO ").nome
+    assert canal_para("Cidade Inexistente").cidade is None
+    assert canal_para(None).cidade is None
+
+
+def test_telefone_inventado_some_da_analise():
+    inventado = dict(VALIDO, orientacoes=["Sinalize o local.", "Ligue para a Secretaria de Obras (0800-123-4567)."],
+                     orgao_responsavel="Secretaria de Obras (11) 3333-4444")
+    r = run_triage(entrada("Buraco enorme na avenida perto da escola"), FakeLLM([json.dumps(inventado)]), FakeOpenData())
+    texto = " ".join(r.analise.orientacoes) + r.analise.orgao_responsavel
+    assert "0800" not in texto and "3333" not in texto
+
+
+def test_cidade_do_cep_define_o_canal():
+    dados = FakeOpenData(endereco={"logradouro": "Rua X", "bairro": "Centro", "localidade": "Osasco", "uf": "SP"})
+    r = run_triage(entrada("Buraco enorme na avenida perto da escola", cep="06010-000"), MockLLM(), dados)
+    assert r.canal_oficial.cidade == "Osasco"
+
+
+def test_sem_cidade_usa_canal_generico():
+    r = run_triage(entrada("Buraco enorme na avenida perto da escola"), MockLLM(), FakeOpenData())
+    assert r.canal_oficial.cidade is None and "156" in r.canal_oficial.como_registrar[0]

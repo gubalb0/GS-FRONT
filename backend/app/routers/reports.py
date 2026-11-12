@@ -37,6 +37,7 @@ def analisar(entrada: ReportInput, llm: LLMProvider = Depends(get_llm),
     analise_id = uuid4().hex
     entrada_segura = entrada.model_dump(mode="json")
     entrada_segura["descricao"], _ = mask_pii(entrada.descricao)
+    entrada_segura["cidade"] = resultado.contexto.cidade  # pode ter vindo do CEP (ViaCEP)
     repo.save_analysis(analise_id, entrada_segura, resultado.analise.model_dump(mode="json"))
     return resultado.model_copy(update={"analise_id": analise_id})
 
@@ -48,7 +49,9 @@ def confirmar(body: ReportConfirm, repo: Repository = Depends(get_repo)):
     if not pendente:
         raise HTTPException(404, detail=erro("analise_nao_encontrada", "Esta análise expirou ou já foi enviada. Faça a análise novamente."))
     entrada, analise = pendente
-    return repo.create_report(entrada, analise, body.categoria_final.value, body.urgencia_final.value)
+    detalhe, _ = mask_pii(body.detalhe_outro) if body.detalhe_outro else (None, False)
+    return repo.create_report(entrada, analise, body.categoria_final.value, body.urgencia_final.value,
+                              detalhe_outro=detalhe)
 
 
 @router.get("/mine", response_model=list[ReportOut])

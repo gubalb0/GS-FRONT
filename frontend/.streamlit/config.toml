@@ -1,6 +1,10 @@
 [server]
 headless = true
 
+[client]
+# Esconde o botão "Deploy" e o menu de desenvolvedor
+toolbarMode = "minimal"
+
 [browser]
 gatherUsageStats = false
 

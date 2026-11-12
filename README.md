@@ -116,13 +116,13 @@ zelo/
 | Risco | Mitigação |
 |---|---|
 | **Erro de classificação** | Cidadão confere e corrige antes do envio; correções ficam registradas (`categoria_ia` × `categoria`) e viram o indicador "IA aceita sem correção" para o gestor. |
-| **Alucinação** (inventar órgão, telefone, fato) | Prompt proíbe; enums fechados; órgão genérico; números de emergência fixos inseridos por regra, não pela IA. |
+| **Alucinação** (inventar órgão, telefone, fato) | Aconteceu na validação: o modelo inventou "0800-xxxx" mesmo proibido no prompt. Hoje: enums fechados; **filtro no código apaga qualquer telefone** que não seja 199/193/192/190/156; o **canal oficial vem de uma tabela verificada** com fonte (`providers/canais.py`), nunca da IA; números de emergência inseridos por regra. |
 | **Subestimar um risco** | Regras de segurança só **elevam** a urgência; confiança < 0,6 ou urgência crítica destacam o pedido de revisão. |
-| **Viés** (bairros periféricos ou textos com erros de português serem tratados como menos graves) | A urgência é definida por critérios do problema, não por quem relata nem pela qualidade da escrita; o painel por bairro permite auditar se algum bairro concentra rebaixamentos. ✏️ _Comentem o que observaram nos testes._ |
+| **Viés** (bairros periféricos ou textos com erros de português serem tratados como menos graves) | A urgência é definida por critérios do problema, não por quem relata nem pela qualidade da escrita; o painel por bairro permite auditar se algum bairro concentra rebaixamentos. **Na validação**, o relato da pessoa 1 foi escrito de forma bem informal, sem maiúsculas nem pontuação ("na rua [nome omitido] tem muito buraco quando chove…"), e recebeu categoria e urgência corretas (buraco, alta). É só um caso, não uma prova de ausência de viés. |
 | **Dados pessoais** | CPF, telefone e e-mail são removidos **antes** de ir ao LLM e antes de salvar; painel público não mostra texto, CEP nem protocolo; análises não confirmadas são apagadas em 24 h. |
 | **Uso indevido** (*prompt injection*, relatos falsos) | Relato tratado como dado; saída validada; nada é publicado automaticamente — o gestor decide o status. |
 
-**O que o Zelo NÃO faz:** não substitui 199/193/192 em emergências, não garante prazo de atendimento, não abre chamado automaticamente em sistemas oficiais (é uma POC) e não identifica o cidadão.
+**O que o Zelo NÃO faz:** não substitui 199/193/192 em emergências, não garante prazo de atendimento, não abre chamado automaticamente em sistemas oficiais (é uma POC — por isso a tela final mostra o canal oficial da cidade e um texto pronto para o cidadão registrar lá) e não identifica o cidadão.
 
 ## 7. Acessibilidade aplicada
 
@@ -130,6 +130,8 @@ zelo/
 - Paleta das etiquetas com contraste AA (texto escuro sobre fundo claro, ≥ 4,5:1).
 - **Alto contraste** (fundo preto, texto branco, destaques amarelos) e **letras maiores** na barra lateral.
 - **Leitura em voz alta** do protocolo e das orientações (Web Speech API, pt-BR).
+- **Telefones de emergência como botões grandes** que ligam com um toque no celular (links `tel:`).
+- Linguagem que orienta sem alarmar: "Urgência Máxima" + o que fazer, em vez de "Crítica" (ajuste da validação).
 - Foco visível para navegação por **teclado** (`:focus-visible`), formulário em ordem lógica, `aria-current` no indicador de etapas.
 - Todos os campos com rótulo visível e texto de ajuda; mensagens de erro dizem **o que fazer** ("o CEP deve ter 8 números").
 - Linguagem simples, sem jargão; estados vazios explicam o próximo passo.
@@ -137,7 +139,28 @@ zelo/
 ## 8. Evidências de validação
 
 ### 8.1 Teste com pessoas do público-alvo
-✏️ Preencham `docs/VALIDACAO.md` (roteiro pronto) e resumam aqui: quem testou (perfil, sem nome completo), o que observaram e **o ajuste feito a partir do feedback**.
+Três pessoas testaram a versão publicada pelo WhatsApp (link do deploy + 3 tarefas + 4 perguntas), em 11 e 12/11/2026. Registro completo, prints e antes × depois em [`docs/VALIDACAO.md`](docs/VALIDACAO.md).
+
+| | Facilidade | Confiaria? | Principal feedback |
+|---|---|---|---|
+| Pessoa 1 (computador) | 4/5 | Sim | Indicar **onde registrar** o pedido na prefeitura |
+| Pessoa 2 (celular) | 4/5 | Sim | Campo para dizer o motivo em **"Outro problema"**; visual com **menos "cara de IA"** |
+| Pessoa 3 | 4/5 | Sim, em casos claros | **Explicar o protocolo**; "Urgência Crítica" assusta; **destacar emergência**; espera de 30 s parece travamento |
+
+**Observado por nós nos prints:** o LLM **inventou um telefone** ("Secretaria de Obras (0800-xxxx)") apesar da proibição no prompt, e o horário aparecia em UTC.
+
+**Ajustes feitos a partir do feedback:**
+- canal oficial verificado por cidade (SP156, Central 156 de Osasco), com texto pronto para copiar;
+- filtro que apaga telefones inventados pela IA;
+- campo "Qual é o problema?" ao escolher "Outro";
+- explicação do protocolo;
+- "Urgência Máxima" com instrução clara;
+- botões 199/193/192 que ligam com um toque;
+- aviso "Conectando ao serviço…" no primeiro acesso;
+- visual sóbrio de serviço público;
+- horário de Brasília.
+
+**Principal aprendizado:** regra no prompt não é garantia — o que precisa estar certo (canais oficiais, números de emergência) vem de dados verificados e de regras no código, não da IA.
 
 ### 8.2 Casos de teste da IA
 Rodem com a chave configurada no `backend/.env`:

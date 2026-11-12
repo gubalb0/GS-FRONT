@@ -33,7 +33,7 @@ def guardar_rascunho(**campos) -> None:
 
 def guardar_analise(analise: dict) -> None:
     st.session_state.analise_atual = analise
-    for chave in ("hitl_categoria", "hitl_urgencia"):  # a nova análise define os valores iniciais
+    for chave in ("hitl_categoria", "hitl_urgencia", "hitl_detalhe_outro"):  # a nova análise define os valores iniciais
         st.session_state.pop(chave, None)
     ir_para("revisao")
 
