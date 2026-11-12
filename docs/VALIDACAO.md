@@ -7,7 +7,7 @@
 
 - **Quando:** 11 e 12/11/2026.
 - **Como:** à distância, pelo WhatsApp. Cada pessoa recebeu o link do deploy (https://zelo-web.onrender.com), três tarefas e quatro perguntas, e respondeu por mensagem com prints da tela.
-- **Público:** moradores que circulam pelo próprio bairro — o público do Zelo. A pessoa 1 relatou um problema real em Osasco. ✏️ _Completem o perfil de cada pessoa na tabela._
+- **Público:** três moradores da Grande São Paulo, de 19 e 20 anos, de Osasco, Taboão da Serra e região oeste. Eles se deslocam de carro, a pé e de ônibus e dependem da infraestrutura urbana no dia a dia, ou seja, são o público do Zelo. Nenhum trabalha com zeladoria ou com a prefeitura. Detalhes como empresa e bairro exato foram omitidos por privacidade, porque o repositório é público.
 - **Versão testada:** a que estava no ar em 11/11/2026 (commit `39a28ef`).
 
 ### Roteiro enviado
@@ -20,11 +20,11 @@ Perguntas: (a) de 1 a 5, quão fácil foi? (b) alguma parte confundiu ou alguma 
 
 ## Registro
 
-| # | Perfil ✏️ _(idade aprox., relação com o tema)_ | Dispositivo | Concluiu sem ajuda? ✏️ | Facilidade | Confiaria? | O que disse |
+| # | Perfil | Dispositivo | Concluiu sem ajuda? | Facilidade | Confiaria? | O que disse |
 |---|---|---|---|---|---|---|
-| 1 | | Computador | ✏️ (chegou a "Meus relatos") | 4/5 | Sim: "parece bem real com o meu problema" | Sem bugs. "Poderia indicar qual aplicativo da prefeitura" e "onde o cidadão pode registrar a ocorrência". |
-| 2 | | Celular | ✏️ | 4/5 | Sim: "entendeu qual era o problema principal" (citou dois problemas na mesma frase) | Sem bugs e sem palavras estranhas. Mudaria o visual para ter "menos cara de IA" e, ao escolher "Outro problema", poder dizer qual é. |
-| 3 | | ✏️ | ✏️ | 4/5 | Sim, "para casos claros como fios quebrados" | O código de protocolo aparece sem explicação; "Urgência Crítica" pode assustar; destacaria mais o telefone de emergência; a espera de ~30 s no primeiro acesso parece travamento. |
+| 1 | 19 anos, colega de faculdade, mora em Osasco, anda de carro (relatou buracos na própria rua) | Computador | Sim | 4/5 | Sim: "parece bem real com o meu problema" | Sem bugs. "Poderia indicar qual aplicativo da prefeitura" e "onde o cidadão pode registrar a ocorrência". |
+| 2 | 20 anos, trabalha em Osasco, mora na região oeste da Grande SP, anda a pé e de ônibus | Celular | Sim | 4/5 | Sim: "entendeu qual era o problema principal" (citou dois problemas na mesma frase) | Sem bugs e sem palavras estranhas. Mudaria o visual para ter "menos cara de IA" e, ao escolher "Outro problema", poder dizer qual é. |
+| 3 | 20 anos, mora em Taboão da Serra, trabalha em home office e depende de energia elétrica para trabalhar | Celular | Sim | 4/5 | Sim, "para casos claros como fios quebrados" | O código de protocolo aparece sem explicação; "Urgência Crítica" pode assustar; destacaria mais o telefone de emergência; a espera de ~30 s no primeiro acesso parece travamento. |
 
 ### O que nós observamos (além do que as pessoas disseram)
 
@@ -32,7 +32,7 @@ Perguntas: (a) de 1 a 5, quão fácil foi? (b) alguma parte confundiu ou alguma 
 - **Horário errado.** O mesmo print mostra 23:54 para um relato feito às 20:54: o cartão exibia o horário em UTC.
 - **Celular.** A pessoa 2 usou o app no celular sem dificuldade. No print, o menu lateral aparecia sobreposto ao conteúdo, porque o app forçava a barra lateral aberta. → [print](validacao/pessoa2_celular_outro.png)
 
-**Resumo:** as três pessoas deram nota 4/5 e confiariam no resultado. Nenhuma encontrou bug no app em si. As críticas foram sobre **o que fazer depois do relato** (onde registrar, o que é o protocolo), **clareza em casos graves** e **espera no primeiro acesso**.
+**Resumo:** as três pessoas concluíram todas as tarefas sem ajuda (duas pelo celular), deram nota 4/5 e confiariam no resultado. Nenhuma encontrou bug no app em si. As críticas foram sobre **o que fazer depois do relato** (onde registrar, o que é o protocolo), **clareza em casos graves** e **espera no primeiro acesso**.
 
 ## Ajustes feitos a partir do feedback
 
