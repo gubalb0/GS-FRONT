@@ -151,3 +151,18 @@ def atualizar_status(token: str, relato_id: int, status: str, nota: str | None) 
     relatos_publicos.clear()
     meus_relatos.clear()
     return data
+
+
+# ------------------------------------------------- Publicações oficiais (Gen AI, só na demonstração local)
+@st.cache_data(ttl=15, show_spinner=False)
+def publicacoes_saude() -> dict:
+    return _exige(_request("GET", "/publicacoes/saude", timeout=httpx.Timeout(10.0, connect=5.0)),
+                  {"habilitado", "servico_online", "modelo_disponivel"})
+
+
+@st.cache_data(ttl=900, show_spinner=False, max_entries=30)
+def perguntar_publicacoes(pergunta: str) -> dict:
+    """Cacheado: a mesma pergunta não ocupa o modelo local de novo (cada resposta leva de 12 a 30 s)."""
+    data = _request("POST", "/publicacoes/perguntar", json={"pergunta": pergunta},
+                    timeout=httpx.Timeout(210.0, connect=10.0))
+    return _exige(data, {"status", "rotulo_status", "resposta", "fontes", "versao_politica"})

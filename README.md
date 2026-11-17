@@ -102,6 +102,8 @@ zelo/
 
 ## 5. Decisões técnicas
 
+- **Integração com o Gen AI por serviço isolado:** o Zelo chama o serviço `integracao_citizentech` (porta 8100), que importa o assistente RAG do colega sem alterar os arquivos congelados dele. A aba fica desligada quando `GENAI_URL` está vazia, então o deploy no Render (512 MB de RAM, sem modelo local) continua funcionando. Detalhes em [`docs/INTEGRACAO_GENAI.md`](docs/INTEGRACAO_GENAI.md).
+
 - **Por que Streamlit:** a jornada tem etapas (relatar → conferir → protocolo) e duas visões (cidadão e gestor); `st.session_state` modela isso de forma simples, `st.form` evita reruns a cada tecla, `st.status` dá feedback de latência e o deploy no Community Cloud é direto. Gradio é ótimo para "uma entrada → uma saída", mas o nosso fluxo tem estado e várias telas.
 - **Por que esse prompt e esse formato:** o prompt define critérios objetivos de urgência (com exemplos de cada nível), obriga números de emergência quando há risco à vida, proíbe inventar fatos e trata o relato como **dado e não instrução** (defesa contra *prompt injection* — ver caso 5 na tabela). A saída é JSON validado por Pydantic com enums fechados: o front nunca recebe texto livre para "adivinhar", e a regra de negócio (cores, ordenação da fila, gráficos) depende desses campos.
 - **Regras determinísticas depois da IA:** a IA não pode rebaixar riscos óbvios. Alagamento + chuva ≥ 20 mm prevista → urgência mínima "alta"; menção a fio caído, choque, pessoas ilhadas ou desabamento → mínima "alta"; urgência crítica sempre inclui 199/193.
@@ -225,6 +227,7 @@ Também rodam no GitHub Actions a cada push.
 ## 10. Diferenciais implementados
 - ✅ Perfis cidadão × gestor (RBAC) com login, fila priorizada e resposta ao cidadão
 - ✅ Múltiplas fontes de dados abertos (ViaCEP + Open-Meteo) cruzadas com o relato
+- ✅ Integração com o módulo de Generative AI do grupo: aba **Publicações oficiais**, que consulta o Diário Oficial do DF (saúde) por um serviço isolado. Funciona só na demonstração local, com o LM Studio; ver [`docs/INTEGRACAO_GENAI.md`](docs/INTEGRACAO_GENAI.md)
 - ✅ Testes automatizados (pytest) + CI no GitHub Actions
 - ✅ Docker Compose + blueprint de deploy público
 - ✅ Acessibilidade avançada (voz, alto contraste, fonte maior, teclado)
