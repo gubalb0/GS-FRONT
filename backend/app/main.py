@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 
 from app.config import get_settings
 from app.dependencies import repo_for
-from app.routers import health, manager, reports
+from app.routers import health, manager, publicacoes, reports
 from app.schemas.report import erro
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -18,7 +18,7 @@ logger = logging.getLogger("zelo")
 NOMES_CAMPOS = {"descricao": "Descrição", "bairro": "Bairro", "cep": "CEP", "senha": "Senha",
                 "categoria_final": "Tipo de problema", "urgencia_final": "Urgência", "comentario": "Comentário",
                 "nota": "Observação", "analise_id": "Análise", "cidade": "Cidade",
-                "detalhe_outro": "Qual é o problema"}
+                "detalhe_outro": "Qual é o problema", "pergunta": "Pergunta"}
 
 
 def _mensagem(e: dict) -> str:
@@ -75,3 +75,4 @@ async def erro_inesperado(_: Request, exc: Exception):
 app.include_router(health.router)
 app.include_router(reports.router)
 app.include_router(manager.router)
+app.include_router(publicacoes.router)

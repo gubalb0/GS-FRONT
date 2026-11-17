@@ -11,6 +11,8 @@ services:
       ALLOWED_ORIGINS: http://localhost:8501
       DATABASE_PATH: /app/data/zelo.db
       SEED_DEMO_DATA: ${SEED_DEMO_DATA:-true}
+      # Gen AI local (opcional): no Windows/Mac use http://host.docker.internal:8100
+      GENAI_URL: ${GENAI_URL:-}
     ports:
       - "8000:8000"
     volumes:

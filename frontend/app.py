@@ -4,7 +4,7 @@ import streamlit as st
 st.set_page_config(page_title="Zelo · Zeladoria urbana", page_icon="🏙️", layout="wide",
                    initial_sidebar_state="auto")
 
-from features import barra_lateral, conexao, gestor, meus_relatos, novo_relato, painel_cidade  # noqa: E402
+from features import barra_lateral, conexao, gestor, meus_relatos, novo_relato, painel_cidade, publicacoes  # noqa: E402
 from state.session import iniciar_estado  # noqa: E402
 from ui.theme import aplicar_tema  # noqa: E402
 
@@ -23,10 +23,13 @@ st.markdown(
 if st.session_state.perfil == "Gestor":
     gestor.render()
 else:
-    aba_novo, aba_meus, aba_cidade = st.tabs(["Novo relato", "Meus relatos", "Painel da cidade"])
+    aba_novo, aba_meus, aba_cidade, aba_pub = st.tabs(
+        ["Novo relato", "Meus relatos", "Painel da cidade", "Publicações oficiais"])
     with aba_novo:
         novo_relato.render()
     with aba_meus:
         meus_relatos.render()
     with aba_cidade:
         painel_cidade.render()
+    with aba_pub:
+        publicacoes.render()

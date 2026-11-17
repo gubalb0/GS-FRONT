@@ -26,6 +26,11 @@ class Settings(BaseSettings):
     enable_external_data: bool = True
     external_timeout_seconds: float = 4.0
 
+    # Gen AI (assistente de publicações oficiais do DODF, módulo de Generative AI). Vazio = recurso desligado.
+    # Só funciona na demonstração local: o modelo roda no LM Studio do computador (ver docs/INTEGRACAO_GENAI.md).
+    genai_url: str = ""
+    genai_timeout_seconds: float = 200.0
+
     @property
     def origins(self) -> list[str]:
         """Lista de origens CORS. O curinga '*' é descartado de propósito."""
