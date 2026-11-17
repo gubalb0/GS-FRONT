@@ -47,6 +47,8 @@ GENAI_URL=http://localhost:8100
 ```
 Depois suba o Zelo normalmente (`uvicorn app.main:app --reload` no `backend` e `streamlit run app.py` no `frontend`) e abra a aba **Publicações oficiais**.
 
+> **Memória (computadores com 16 GB):** o servidor do LM Studio cresce a cada pergunta (de ~5,4 para ~7,6 GB, segundo o módulo). Faça no máximo **3 perguntas seguidas** e então **ejete e carregue o modelo de novo** no LM Studio. Se a resposta vier "Assistente indisponível" ou com falha técnica, é isso: recarregue o modelo.
+
 ## O que mostrar na demonstração
 1. **Uma pergunta respondida:** "Qual é o serviço de alimentação hospitalar contratado para as unidades de saúde em Ceilândia?". Mostre o status, a publicação (edição e data do DODF) e o trecho literal.
 2. **Uma abstenção:** "Qual é a capital da França?" → *Fora do escopo*.
