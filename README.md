@@ -10,7 +10,7 @@
 | 👥 Integrantes | Vinicius Araujo – RM 564504 · Henry Gimenez – RM 563217 · Gustavo Balbo – RM 561711 |
 | 🌐 Deploy (front) | https://zelo-web.onrender.com |
 | 🔌 Deploy (API) | https://zelo-api-fzc6.onrender.com/docs |
-| 🎬 Vídeo | ✏️ _https://youtu.be/..._ |
+| 🎬 Vídeo | https://youtu.be/KR_rhEB3jUE |
 
 ---
 
